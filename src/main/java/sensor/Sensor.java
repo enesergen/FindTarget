@@ -11,17 +11,20 @@ public class Sensor implements Serializable {
     int[] coordinates;
     String sensorName;
 
-    Sensor(String sensorName) {
-        Random random = new Random();
-        coordinates =
-                new int[]
-                        {
-                                -500 + random.nextInt(1000),
-                                -500 + random.nextInt(1000)
-                        };
+    /* Sensor(String sensorName) {
+         Random random = new Random();
+         coordinates =
+                 new int[]
+                         {
+                                 -500 + random.nextInt(1000),
+                                 -500 + random.nextInt(1000)
+                         };
+         this.sensorName = sensorName;
+     }*/
+    Sensor(String sensorName, int[] coordinates) {
         this.sensorName = sensorName;
+        this.coordinates = coordinates;
     }
-
 
     public void createServer(int port) {
 
@@ -67,13 +70,13 @@ public class Sensor implements Serializable {
     }
 
     public static void main(String[] args) {
-        Sensor sensor1 = new Sensor("Sensor-1");
+        Sensor sensor1 = new Sensor("Sensor-1",new int[]{-500,0});
         new Thread(() -> {
-            sensor1.createServer(8080);
+            sensor1.createServer(5432);
         }).start();
-        Sensor sensor2 = new Sensor("Sensor-2");
+        Sensor sensor2 = new Sensor("Sensor-2",new int[]{500,0});
         new Thread(() -> {
-            sensor2.createServer(8081);
+            sensor2.createServer(5433);
         }).start();
 
     }

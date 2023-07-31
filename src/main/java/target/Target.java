@@ -5,17 +5,30 @@ import java.net.Socket;
 import java.util.Random;
 
 public class Target {
-    int[] coordinates;
+    private int[] coordinates;
 
-    Target() {
-        Random random = new Random();
-        coordinates =
-                new int[]
-                        {
-                                -500 + random.nextInt(1000),
-                                -500 + random.nextInt(1000)
-                        };
+    public int[] getCoordinates() {
+        return coordinates;
     }
+
+    public void setCoordinates(int[] coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    /*Target() {
+            Random random = new Random();
+            coordinates =
+                    new int[]
+                            {
+                                    -500 + random.nextInt(1000),
+                                    -500 + random.nextInt(1000)
+                            };
+        }
+    */
+    Target() {
+        coordinates = new int[]{-501, 501};
+    }
+
 
 
     public void sendCoordinates(int port) {
@@ -23,6 +36,12 @@ public class Target {
         Socket socket = null;
         ObjectOutputStream oos = null;
         ObjectInputStream ois = null;
+        var temp = getCoordinates().clone();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         while (!isConnected) {
             try {
                 socket = new Socket("localhost", port);
@@ -42,9 +61,19 @@ public class Target {
         while (true) {
             try {
                 if (isConnected) {
-                    oos.writeObject(coordinates);
+                    if(temp[0]==501){
+                        temp[0]=-500;
+                    }
+                    if(temp[1]==-501){
+                        temp[1]=500;
+                    }
+                    oos.writeObject(temp);
+                    oos.flush();
+                    oos.reset();
+                    temp[0]++;
+                    temp[1]--;
                     System.out.println("Sensor:" + (String) ois.readObject());
-                    Thread.sleep(1000);
+                    Thread.sleep(125);
                 } else {
                     socket = new Socket("localhost", port);
                     oos = new ObjectOutputStream(socket.getOutputStream());
@@ -71,10 +100,10 @@ public class Target {
     public static void main(String[] args) {
         Target target = new Target();
         new Thread(() -> {
-            target.sendCoordinates(8080);
+            target.sendCoordinates(5432);
         }).start();
         new Thread(() -> {
-            target.sendCoordinates(8081);
+            target.sendCoordinates(5433);
         }).start();
     }
 }
